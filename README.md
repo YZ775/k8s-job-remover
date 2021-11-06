@@ -3,6 +3,7 @@
 ## Description
 This Custom Resource deletes completed jobs in the specified namespace that elapsed specified time.
 
+This software was developed because Google Kubernetes Engine does not support ```ttlSecondsAfterFinished``` yet.
 ## Sample
 You can specify TTL as minutes
 
