@@ -28,8 +28,10 @@ type JobRemoverSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of JobRemover. Edit jobremover_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// +kubebuilder:validation:Minimum=0
+	TTL int64 `json:"TTL"`
+
+	Namespace string `json:"namespace"`
 }
 
 // JobRemoverStatus defines the observed state of JobRemover

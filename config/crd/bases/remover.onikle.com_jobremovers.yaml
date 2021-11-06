@@ -36,10 +36,15 @@ spec:
           spec:
             description: JobRemoverSpec defines the desired state of JobRemover
             properties:
-              foo:
-                description: Foo is an example field of JobRemover. Edit jobremover_types.go
-                  to remove/update
+              TTL:
+                format: int64
+                minimum: 0
+                type: integer
+              namespace:
                 type: string
+            required:
+            - TTL
+            - namespace
             type: object
           status:
             description: JobRemoverStatus defines the observed state of JobRemover

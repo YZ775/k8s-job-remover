@@ -3,4 +3,5 @@ kind: JobRemover
 metadata:
   name: jobremover-sample
 spec:
-  # TODO(user): Add fields here
+  namespace: "default"
+  TTL: 30
