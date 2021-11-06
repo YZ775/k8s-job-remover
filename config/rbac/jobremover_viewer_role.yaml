@@ -1,0 +1,20 @@
+# permissions for end users to view jobremovers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: jobremover-viewer-role
+rules:
+- apiGroups:
+  - remover.onikle.com
+  resources:
+  - jobremovers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - remover.onikle.com
+  resources:
+  - jobremovers/status
+  verbs:
+  - get

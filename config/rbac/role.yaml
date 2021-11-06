@@ -1,0 +1,34 @@
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - remover.onikle.com
+  resources:
+  - jobremovers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - remover.onikle.com
+  resources:
+  - jobremovers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - remover.onikle.com
+  resources:
+  - jobremovers/status
+  verbs:
+  - get
+  - patch
+  - update

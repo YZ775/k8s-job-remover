@@ -1,0 +1,6 @@
+apiVersion: remover.onikle.com/v1
+kind: JobRemover
+metadata:
+  name: jobremover-sample
+spec:
+  # TODO(user): Add fields here

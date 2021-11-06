@@ -1,0 +1,24 @@
+# permissions for end users to edit jobremovers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: jobremover-editor-role
+rules:
+- apiGroups:
+  - remover.onikle.com
+  resources:
+  - jobremovers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - remover.onikle.com
+  resources:
+  - jobremovers/status
+  verbs:
+  - get
