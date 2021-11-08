@@ -2,6 +2,7 @@ apiVersion: remover.onikle.com/v1
 kind: JobRemover
 metadata:
   name: jobremover-sample
+  namespace: "job-remover"
 spec:
   namespace: "default"
-  TTL: 30
+  TTL: 120

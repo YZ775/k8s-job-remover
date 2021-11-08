@@ -18,11 +18,11 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	removerv1 "github.com/Onikle/job-remover/api/v1"
 	batchv1 "k8s.io/api/batch/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -57,21 +57,16 @@ type JobRemoverReconciler struct {
 func (r *JobRemoverReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	// TODO(user): your logic here
 	var jobremover removerv1.JobRemover
 	err := r.Get(ctx, req.NamespacedName, &jobremover)
 
-	// if errors.IsNotFound(err) {
-	// 	r.removeMetrics(jobremover)
-	// 	return ctrl.Result{}, nil
-	// }
 	if err != nil {
 		logger.Error(err, "unable to get JobRemover", "name", req.NamespacedName)
-		return ctrl.Result{}, err
+		return ctrl.Result{RequeueAfter: 10 * time.Second}, err
 	}
 
 	if !jobremover.ObjectMeta.DeletionTimestamp.IsZero() {
-		return ctrl.Result{}, nil
+		return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
 	}
 
 	ns := jobremover.Spec.Namespace
@@ -79,17 +74,26 @@ func (r *JobRemoverReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	err = r.List(ctx, &jobs, &client.ListOptions{Namespace: ns})
 
 	if err != nil {
-		return ctrl.Result{}, err
+		logger.Error(err, "unable get delete job")
+		return ctrl.Result{RequeueAfter: 10 * time.Second}, err
 	}
+
 	for _, job := range jobs.Items {
-		fmt.Println(job.Name)
-		time_elapsed := time.Since(job.Status.CompletionTime.Time)
-
-		if job.Status.Succeeded == 1 && time_elapsed.Minutes() > float64(jobremover.Spec.TTL) {
-			r.Delete(ctx, &job)
-			logger.Info("DeletedJob", "Jobname", job.Name, "completed", job.Status.Succeeded, "CompletionTime", job.Status.CompletionTime, "Elapsed", time_elapsed)
+		if job.Status.Succeeded == 1 {
+			time_elapsed := time.Since(job.Status.CompletionTime.Time)
+			if time_elapsed.Minutes() > float64(jobremover.Spec.TTL) {
+				deletePolicy := metav1.DeletePropagationBackground
+				deleteOptions := &client.DeleteOptions{
+					PropagationPolicy: &deletePolicy,
+				}
+				err := r.Delete(ctx, &job, deleteOptions)
+				if err != nil {
+					logger.Error(err, "unable to delete job", "name", job.Name)
+					return ctrl.Result{}, err
+				}
+				logger.Info("DeletedJob", "Jobname", job.Name, "completed", job.Status.Succeeded, "CompletionTime", job.Status.CompletionTime, "Elapsed", time_elapsed)
+			}
 		}
-
 	}
 
 	return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
